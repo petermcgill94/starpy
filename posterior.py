@@ -29,16 +29,16 @@ P.rc('xtick', labelsize='medium')
 P.rc('ytick', labelsize='medium')
 P.rc('axes', labelsize='medium')
 
-method = raw_input('Do you wish to use a look-up table? (yes/no) :')
+method = input('Do you wish to use a look-up table? (yes/no) :')
 if method == 'yes' or method =='y':
-    prov = raw_input('Do you wish to use the provided u-r and NUV-u look up tables? (yes/no) :')
+    prov = input('Do you wish to use the provided u-r and NUV-u look up tables? (yes/no) :')
     if prov == 'yes' or prov =='y':
-        print 'gridding...'
+        print ('gridding...')
         tq = N.linspace(0.003, 13.8, 100)
         tau = N.linspace(0.003, 4, 100)
         ages = N.linspace(10.88861228, 13.67023409, 50)
         grid = N.array(list(product(ages, tau, tq)))
-        print 'loading...'
+        print ('loading...')
         nuv_pred = N.load('nuv_look_up_ssfr.npy')
         ur_pred = N.load('ur_look_up_ssfr.npy')
         lu = N.append(nuv_pred.reshape(-1,1), ur_pred.reshape(-1,1), axis=1)
@@ -52,7 +52,7 @@ if method == 'yes' or method =='y':
         three = N.array(input('Define third axis values (tq) of look up table start, stop, len(axis1); e.g. 0, 13.8, 100 : '))
         tq = N.linspace(float(three[0]), float(three[1]), float(three[2]))
         grid = N.array(list(product(ages, tau, tq)))
-        print 'loading...'
+        print ('loading...')
         nuv_pred = N.load(col1)
         ur_pred = N.load(col2)
         lu = N.append(nuv_pred.reshape(-1,1), ur_pred.reshape(-1,1), axis=1)
@@ -197,7 +197,7 @@ def expsfh_mass(ur, Mr, age, tq, tau, time):
     else:
         log_m_l = -0.16 + 0.18 * ur
     m_msun = 10**(((4.62 - Mr)/2.5) + log_m_l)
-    print 'Mass [M_solar]', m_msun
+    print ('Mass [M_solar]', m_msun)
     c_sfr = (m_msun/(tq + tau*(1 - N.exp((tq - t_end)/tau)))) / 1E9
     a = time.searchsorted(tq)
     sfr = N.ones(len(time))*c_sfr
@@ -325,7 +325,7 @@ def lnprob(theta, ur, sigma_ur, nuvu, sigma_nuvu, age):
     global n
     n+=1
     if n %100 == 0:
-        print 'step number', n/100
+        print ('step number', n/100)
     lp = lnprior(theta)
     if not N.isfinite(lp):
         return -N.inf
@@ -386,7 +386,7 @@ def sample(ndim, nwalkers, nsteps, burnin, start, ur, sigma_ur, nuvu, sigma_nuvu
         global v
         a = N.searchsorted(ages, age)
         b = N.array([a-1, a])
-        print 'interpolating function, bear with...'
+        print ('interpolating function, bear with...')
         g = grid[N.where(N.logical_or(grid[:,0]==ages[b[0]], grid[:,0]==ages[b[1]]))]
         values = lu[N.where(N.logical_or(grid[:,0]==ages[b[0]], grid[:,0]==ages[b[1]]))]
         f = LinearNDInterpolator(g, values, fill_value=(-N.inf))
@@ -397,7 +397,7 @@ def sample(ndim, nwalkers, nsteps, burnin, start, ur, sigma_ur, nuvu, sigma_nuvu
         u = interp2d(tq, tau, luur)
     else:
         pass
-    print 'emcee running...'
+    print ('emcee running...')
     p0 = [start + 1e-4*N.random.randn(ndim) for i in range(nwalkers)]
     sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, threads=2, args=(ur, sigma_ur, nuvu, sigma_nuvu, age))
     """ Burn in run here..."""
@@ -408,7 +408,7 @@ def sample(ndim, nwalkers, nsteps, burnin, start, ur, sigma_ur, nuvu, sigma_nuvu
     samples_save = 'samples_burn_in_'+str(int(id))+'_'+str(ra)+'_'+str(dec)+'_'+str(time.strftime('%H_%M_%d_%m_%y'))+'.npy'
     N.save(samples_save, samples)
     sampler.reset()
-    print 'Burn in complete...'
+    print ('Burn in complete...')
     """ Main sampler run here..."""
     sampler.run_mcmc(pos, nsteps)
     lnpr = sampler.flatlnprobability
@@ -416,7 +416,7 @@ def sample(ndim, nwalkers, nsteps, burnin, start, ur, sigma_ur, nuvu, sigma_nuvu
     samples = sampler.chain[:,:,:].reshape((-1,ndim))
     samples_save = 'samples_'+str(int(id))+'_'+str(ra)+'_'+str(dec)+'_'+str(time.strftime('%H_%M_%d_%m_%y'))+'.npy'
     N.save(samples_save, samples)
-    print 'Main emcee run completed.'
+    print ('Main emcee run completed.')
     return samples, samples_save
 
 

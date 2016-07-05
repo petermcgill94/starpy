@@ -21,4 +21,4 @@ samples, samples_save = sample(2, nwalkers, nsteps, burnin, start, float(u_r), f
 tq_mcmc, tau_mcmc,  = map(lambda v: (v[1], v[2]-v[1], v[1]-v[0]), zip(*N.percentile(samples, [16,50,84],axis=0)))
 fig = corner_plot(samples, labels = [r'$ t_{quench}$', r'$ \tau$'], extents=[[N.min(samples[:,0]), N.max(samples[:,0])],[N.min(samples[:,1]),N.max(samples[:,1])]], bf=[tq_mcmc, tau_mcmc], id=dr8)
 fig.savefig('starpy_output_'+str(dr8)+'_'+str(ra)+'_'+str(dec)+'.pdf')
-print 'Best fit [t, tau] values found by starpy for input parameters are : [', tq_mcmc[0], tau_mcmc[0], ']'
+print ('Best fit [t, tau] values found by starpy for input parameters are : [', tq_mcmc[0], tau_mcmc[0], ']')
